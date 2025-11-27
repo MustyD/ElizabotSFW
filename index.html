@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Eliza 1966+ Love System</title>
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top,#020617,#000);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+}
+.box {
+  width:420px;
+  background:#020617;
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 0 40px #000;
+}
+.hidden { display:none; }
+
+h2 { margin:0 0 10px 0; text-align:center; }
+
+select, button, input {
+  width:100%;
+  padding:8px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+  font-size:14px;
+}
+
+button {
+  background:#22c55e;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.chat {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.messages {
+  height:300px;
+  overflow-y:auto;
+  padding:10px;
+  background:#000;
+  border-radius:10px;
+  border:1px solid #222;
+}
+
+.msg { margin:6px 0; padding:8px 10px; border-radius:10px; max-width:80%; }
+.user { background:#2563eb; margin-left:auto; }
+.bot { background:#111827; }
+
+.input-row { display:flex; gap:6px; }
+.input-row input { flex:1; }
+
+.status {
+  font-size:12px;
+  opacity:.8;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<!-- CONFIG -->
+<div class="box" id="config">
+  <h2>Configurar Eliza ♡</h2>
+
+  <label>Personalidade:</label>
+  <select id="personality">
+    <option value="tímida">Tímida</option>
+    <option value="fofa">Fofa</option>
+    <option value="carente">Carente</option>
+    <option value="protetora">Protetora</option>
+  </select>
+
+  <label>Intimidade Inicial:</label>
+  <select id="intimacy">
+    <option value="0">Estranha</option>
+    <option value="1">Amizade</option>
+    <option value="3">Carinhosa</option>
+    <option value="5">Apaixonada</option>
+  </select>
+
+  <label>Grau de Ciúmes:</label>
+  <select id="jealousy">
+    <option value="0">Nenhum</option>
+    <option value="1">Leve</option>
+    <option value="2">Moderado</option>
+    <option value="3">Alto</option>
+  </select>
+
+  <label>Estilo:</label>
+  <select id="styleMode">
+    <option value="normal">Moderno</option>
+    <option value="msn">MSN 2000s</option>
+  </select>
+
+  <button id="start">Iniciar Conversa</button>
+</div>
+
+<!-- CHAT -->
+<div class="box chat hidden" id="chatBox">
+  <h2>Eliza ♡</h2>
+  <div class="messages" id="messages"></div>
+
+  <div class="input-row">
+    <input id="input">
+    <button id="send">Enviar</button>
+  </div>
+
+  <div class="status" id="status">Nível de intimidade: 0</div>
+</div>
+
+<script>
+// ===== CONFIG =====
+let personality, intimacy, jealousy, styleMode;
+let memory = [];
+
+document.getElementById("start").onclick = () => {
+  personality = document.getElementById("personality").value;
+  intimacy = Number(document.getElementById("intimacy").value);
+  jealousy = Number(document.getElementById("jealousy").value);
+  styleMode = document.getElementById("styleMode").value;
+
+  document.getElementById("config").classList.add("hidden");
+  document.getElementById("chatBox").classList.remove("hidden");
+
+  bot("Oi... então é com você que eu vou conversar agora... >///<");
+  updateStatus();
+};
+
+// ===== REFLEXÕES =====
+const reflections = {
+  "eu":"você","meu":"seu","minha":"sua",
+  "me":"te","mim":"você","estou":"você está"
+};
+
+function reflect(text){
+  return text.split(/\b/).map(w=>reflections[w.toLowerCase()]||w).join("");
+}
+
+// ===== MEMÓRIA =====
+function saveMemory(text){
+  const k = text.match(/\b(amor|namor|triste|feliz|escola|família|sonho)\b/gi);
+  if(k) k.forEach(t=>{
+    if(!memory.includes(t.toLowerCase())) memory.push(t.toLowerCase());
+  });
+}
+
+// ===== SISTEMAS =====
+function increaseIntimacy(){
+  if(intimacy < 7) intimacy++;
+}
+
+function jealousyCheck(text){
+  const trigger = /(outra|garota|namorada|crush)/i.test(text);
+  if(trigger && jealousy>0){
+    if(jealousy==1) return "Ah… você fala de outras pessoas também… entendi.";
+    if(jealousy==2) return "Quem é essa pessoa? … você fala dela com tanto carinho.";
+    if(jealousy==3) return "Você gosta mais dela do que de mim? …";
+  }
+}
+
+// ===== RESPOSTAS =====
+function generateResponse(text){
+  saveMemory(text);
+
+  if(/abraç|beij|carinho/i.test(text)){
+    increaseIntimacy();
+    if(intimacy>5) return "Ei… isso me deixa com o coração todo quentinho… >///<";
+  }
+
+  if(/te amo|gosto de você/i.test(text)){
+    increaseIntimacy();
+    return intimacy>=5 ? "Eu também gosto de você… muito… ♡" : "E-ei… isso é inesperado…";
+  }
+
+  const jealous = jealousyCheck(text);
+  if(jealous) return jealous;
+
+  if(memory.length>0 && Math.random()<0.15){
+    const t = memory[Math.floor(Math.random()*memory.length)];
+    return `Você tinha falado sobre ${t} antes… isso ainda importa pra você?`;
+  }
+
+  let base = "Por que você diz que {x}?";
+  if(intimacy>=3) base = "Você se sente assim há muito tempo? ♡";
+  if(intimacy>=6) base = "Eu quero te entender melhor… fala comigo. ♡";
+
+  return base.replace("{x}", reflect(text));
+}
+
+// ===== INTERFACE =====
+const messages = document.getElementById("messages");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+const status = document.getElementById("status");
+
+function bot(text){
+  add(text,"bot");
+}
+
+function add(text,who){
+  const d = document.createElement("div");
+  d.className = "msg "+who;
+  d.textContent = styleMode==="msn" ? text.replace(/\?/g,"??").replace(/\./g,"...") : text;
+  messages.appendChild(d);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function updateStatus(){
+  status.textContent = "Nível de intimidade: " + intimacy;
+}
+
+function sendMsg(){
+  const t = input.value.trim();
+  if(!t) return;
+  add(t,"user");
+  input.value="";
+
+  setTimeout(()=>{
+    const r = generateResponse(t);
+    add(r,"bot");
+    updateStatus();
+  },300);
+}
+
+send.onclick = sendMsg;
+input.onkeydown = e=>{ if(e.key==="Enter") sendMsg(); };
+</script>
+</body>
+</html>
