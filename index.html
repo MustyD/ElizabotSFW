@@ -66,6 +66,28 @@ button {
   font-size:12px;
   opacity:.8;
   text-align:center;
+  .input-col {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+textarea {
+  resize: none;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  background:#020617;
+  color:white;
+  border:1px solid #1f2933;
+  font-size:14px;
+  height:70px;
+}
+
+textarea:focus {
+  outline:none;
+  border-color:#22c55e;
+}
 }
 </style>
 </head>
@@ -113,10 +135,10 @@ button {
   <h2>Eliza ♡</h2>
   <div class="messages" id="messages"></div>
 
-  <div class="input-row">
-    <input id="input">
-    <button id="send">Enviar</button>
-  </div>
+<div class="input-col">
+  <textarea id="input" rows="3" placeholder="Digite sua mensagem..."></textarea>
+  <button id="send">Enviar</button>
+</div>
 
   <div class="status" id="status">Nível de intimidade: 0</div>
 </div>
@@ -240,3 +262,4 @@ input.onkeydown = e=>{ if(e.key==="Enter") sendMsg(); };
 </script>
 </body>
 </html>
+
