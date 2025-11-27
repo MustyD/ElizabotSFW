@@ -157,7 +157,7 @@ document.getElementById("start").onclick = () => {
   document.getElementById("config").classList.add("hidden");
   document.getElementById("chatBox").classList.remove("hidden");
 
-  bot("Oi... então é com você que eu vou conversar agora... >///<");
+  bot("Oi... então é com você que eu vou conversar agora...");
   updateStatus();
 };
 
@@ -215,7 +215,7 @@ function generateResponse(text){
     return `Você tinha falado sobre ${t} antes… isso ainda importa pra você?`;
   }
 
-  let base = "Por que você diz que {x}?";
+  let base = "Por que você diz isso?";
   if(intimacy>=3) base = "Você se sente assim há muito tempo? ♡";
   if(intimacy>=6) base = "Eu quero te entender melhor… fala comigo. ♡";
 
@@ -262,4 +262,5 @@ input.onkeydown = e=>{ if(e.key==="Enter") sendMsg(); };
 </script>
 </body>
 </html>
+
 
